@@ -9,11 +9,8 @@ __pycache__/
 *.log
 *.pot
 *.py[cod]
-*.sqlite3
-db.sqlite3
 
 # If you are using migrations
-migrations/
 !*/migrations/__init__.py
 
 # Local development
@@ -42,8 +39,6 @@ eggs/
 # Media and static files
 /media/
 *.media/
-staticfiles/
-static/
 node_modules/
 
 # If you are using Docker
