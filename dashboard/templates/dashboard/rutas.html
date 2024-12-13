@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Rutas
+{% endblock %}
+
+{% block content %}
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h3 class="mb-0">Rutas</h3>
+                </div>
+                <div class="col-sm-6 text-end">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#rutaModal">Agregar Ruta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-content mt-3">
+        <div class="container-fluid">
+            <table id="rutasTable" class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Vehículo</th>
+                    <th>Ubicaciones</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for ruta in rutas %}
+                    <tr>
+                        <td>{{ ruta.nombre }}</td>
+                        <td>{{ ruta.descripcion }}</td>
+                        <td>
+                            {{ ruta.vehiculo|default:"Sin vehículo" }}
+                        </td>
+                        <td>{{ ruta.ubicaciones.count }} ubicaciones</td>
+                        <td class="text-end">
+                            <button class="btn btn-warning btn-sm me-2 edit-btn"
+                                    data-id="{{ ruta.id }}"
+                                    data-nombre="{{ ruta.nombre }}"
+                                    data-descripcion="{{ ruta.descripcion }}"
+                                    data-vehiculo="{{ ruta.vehiculo.id|default:'' }}"
+                                    data-ubicaciones="
+
+
+
+
+
+                                            {% for ubicacion in ruta.ubicaciones.all %}{{ ubicacion.id }}{% if not forloop.last %},{% endif %}{% endfor %}">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <form action="{% url 'ruta_eliminar' ruta.id %}" method="POST"
+                                  style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm delete-btn">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="rutaModal" tabindex="-1" aria-labelledby="rutaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rutaModalLabel">Agregar Ruta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="ruta_id" id="rutaIdInput">
+                    <div class="modal-body">
+                        {{ form.as_p }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        // Inicializar DataTable
+        new DataTable('#rutasTable');
+
+        // Agregar manejador para los botones de agregar y editar
+        document.addEventListener('click', function (event) {
+            console.log("OnClick");
+
+            // Identificar el botón de edición o su elemento hijo
+            const button = event.target.closest('.edit-btn');
+            if (button) {
+                console.log("Botón de edición detectado");
+
+                // Rellenar los campos del modal
+                document.getElementById('rutaIdInput').value = button.getAttribute('data-id');
+                document.getElementById('id_nombre').value = button.getAttribute('data-nombre');
+                document.getElementById('id_descripcion').value = button.getAttribute('data-descripcion');
+                document.getElementById('id_vehiculo').value = button.getAttribute('data-vehiculo');
+
+                // Manejar ubicaciones seleccionadas
+                const ubicaciones = button.getAttribute('data-ubicaciones');
+                if (ubicaciones) {
+                    const ubicacionesArray = ubicaciones.split(',');
+                    const ubicacionesSelect = document.getElementById('id_ubicaciones');
+
+                    // Limpiar selecciones previas
+                    for (let i = 0; i < ubicacionesSelect.options.length; i++) {
+                        ubicacionesSelect.options[i].selected = false;
+                    }
+
+                    // Seleccionar las ubicaciones correspondientes
+                    ubicacionesArray.forEach(ubicacionId => {
+                        const option = Array.from(ubicacionesSelect.options).find(opt => opt.value === ubicacionId);
+                        if (option) {
+                            option.selected = true;
+                        }
+                    });
+                }
+
+                // Cambiar el título del modal
+                document.getElementById('rutaModalLabel').innerText = 'Editar Ruta';
+
+                // Mostrar el modal
+                const modal = new bootstrap.Modal(document.getElementById('rutaModal'));
+                modal.show();
+            }
+
+            if (event.target.classList.contains('delete-btn')) {
+                const confirmed = confirm("¿Estás seguro de eliminar esta ruta?");
+                if (!confirmed) {
+                    event.preventDefault();
+                }
+            }
+        });
+
+        // Limpiar el modal al cerrarlo
+        document.getElementById('rutaModal').addEventListener('hidden.bs.modal', function () {
+            resetModal();
+        });
+
+        // Función para resetear el modal al estado inicial
+        function resetModal() {
+            document.getElementById('rutaModalLabel').innerText = 'Agregar Ruta';
+            document.getElementById('rutaIdInput').value = '';
+            document.getElementById('id_nombre').value = '';
+            document.getElementById('id_descripcion').value = '';
+            document.getElementById('id_vehiculo').value = '';
+
+            const ubicacionesSelect = document.getElementById('id_ubicaciones');
+            for (let i = 0; i < ubicacionesSelect.options.length; i++) {
+                ubicacionesSelect.options[i].selected = false;
+            }
+        }
+
+        // Botón "Agregar Ruta" para abrir un modal limpio
+        document.querySelector('.btn-primary[data-bs-target="#rutaModal"]').addEventListener('click', function () {
+            resetModal();
+        });
+    </script>
+{% endblock %}
+

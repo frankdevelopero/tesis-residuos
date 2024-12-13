@@ -1,0 +1,79 @@
+# Python bytecode
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.so
+
+# Django specific
+*.log
+*.pot
+*.py[cod]
+*.sqlite3
+db.sqlite3
+
+# If you are using migrations
+migrations/
+!*/migrations/__init__.py
+
+# Local development
+*.env
+.env
+.vscode/
+.idea/
+*.swp
+*~
+*.bak
+*.backup
+.DS_Store
+Thumbs.db
+
+# Python environment files
+*.venv
+venv/
+ENV/
+env/
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+
+# Media and static files
+/media/
+*.media/
+staticfiles/
+static/
+node_modules/
+
+# If you are using Docker
+docker-compose.override.yml
+docker-compose.override.yaml
+.dockerignore
+*.dockerfile
+docker-compose.*
+
+# Pytest
+.pytest_cache/
+htmlcov/
+
+# Coverage reports
+.coverage
+.coverage.*
+.cache/
+coverage.xml
+
+# Celery beat scheduler
+celerybeat-schedule
+
+# Local IDE files
+.idea/
+.vscode/
+*.iml
+
+# Git related
+.git/
+.gitignore
+
+# Specific OS generated files
+*.DS_Store

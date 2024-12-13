@@ -1,0 +1,88 @@
+{% load static %}
+{% load active_url %}
+<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+    <div class="sidebar-brand">
+        <a href="{% url 'dashboard' %}" class="brand-link">
+            <img src="{% static 'dashboard/assets/img/muni_hor.png' %}" alt="Muni Huamanga"
+                 class="brand-image opacity-100 shadow">
+        </a>
+    </div>
+    <div class="sidebar-wrapper">
+        <nav class="mt-2">
+            <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
+
+                <li class="nav-item">
+                    <a href="{% url 'dashboard' %}" class="nav-link {% is_active 'dashboard' %}">
+                        <i class="nav-icon bi bi-speedometer"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
+
+
+                <li class="nav-item">
+                    <a href="{% url 'vehicles' %}" class="nav-link {% is_active 'vehicles' %}">
+                        <i class="nav-icon bi bi-truck"></i>
+                        <p>Vehículos</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{% url 'ubicaciones' %}" class="nav-link {% is_active 'ubicaciones' %}">
+                        <i class="nav-icon bi bi-geo-fill"></i>
+                        <p>Ubicaciones</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{% url 'rutas' %}" class="nav-link {% is_active 'rutas' %}">
+                        <i class="nav-icon bi bi-map"></i>
+                        <p>Rutas</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{% url 'mapa' %}" class="nav-link {% is_active 'mapa' %}">
+                        <i class="nav-icon bi bi-geo-alt"></i>
+                        <p>Mapa Interactivo</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{% url 'recoleccion' %}" class="nav-link {% is_active 'recoleccion' %}">
+                        <i class="nav-icon bi bi-trash"></i>
+                        <p>Recolecciones</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'eficiencia' %}" class="nav-link {% is_active 'eficiencia' %}">
+                        <i class="nav-icon bi bi-graph-up"></i>
+                        <p>Eficiencia</p>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="{% url 'reutilizacion' %}" class="nav-link {% is_active 'reutilizacion' %}">
+                        <i class="nav-icon bi bi-recycle"></i>
+                        <p>Reutilización</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{% url 'incidencia' %}" class="nav-link {% is_active 'incidencia' %}">
+                        <i class="nav-icon bi bi-exclamation-triangle"></i>
+                        <p>Incidencias</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{% url 'logout' %}" class="nav-link">
+                        <i class="bi bi-box-arrow-left"></i>
+                        <p>Cerrar sesión</p>
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+    </div>
+
+</aside>

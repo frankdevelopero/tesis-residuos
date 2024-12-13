@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Dashboard
+{% endblock %}
+{% block content %}
+    <div class="app-content mt-3">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Recolecciones realizadas -->
+                <div class="col-lg-3 col-6">
+                    <div class="small-box text-bg-primary">
+                        <div class="inner">
+                            <h3>{{ total_recolecciones }}</h3>
+                            <p>Recolecciones realizadas</p>
+                        </div>
+                        <a href="{% url 'recoleccion' %}"
+                           class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
+                            Ver más <i class="bi bi-link-45deg"></i></a>
+                    </div>
+                </div>
+
+                <!-- Recolecciones programadas -->
+                <div class="col-lg-3 col-6">
+                    <div class="small-box text-bg-success">
+                        <div class="inner">
+                            <h3>{{ recolecciones_programadas }}</h3>
+                            <p>Recolecciones programadas</p>
+                        </div>
+                        <a href="{% url 'recoleccion' %}"
+                           class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
+                            Ver más <i class="bi bi-link-45deg"></i></a>
+                    </div>
+                </div>
+
+
+                <!-- Incidencias reportadas -->
+                <div class="col-lg-3 col-6">
+                    <div class="small-box text-bg-danger">
+                        <div class="inner">
+                            <h3>{{ incidencias_reportadas }}</h3>
+                            <p>Incidencias reportadas total</p>
+                        </div>
+                        <a href="{% url 'incidencia' %}"
+                           class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
+                            Ver más <i class="bi bi-link-45deg"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-6">
+                    <div class="small-box text-bg-primary">
+                        <div class="inner">
+                            <h3>{{ rutas_disponibles }}</h3>
+                            <p>Rutas disponibles</p>
+                        </div>
+                        <a href="{% url 'rutas' %}"
+                           class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
+                            Ver más <i class="bi bi-link-45deg"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <!-- Niveles de eficiencia -->
+                <div class="col-lg-3 col-6">
+                    <div class="small-box text-bg-info">
+                        <div class="inner">
+                            <h3>{{ niveles_eficiencia }}</h3>
+                            <p>Niveles de eficiencia registrados</p>
+                        </div>
+                        <a href="{% url 'eficiencia' %}"
+                           class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
+                            Ver más <i class="bi bi-link-45deg"></i></a>
+                    </div>
+                </div>
+
+                <!-- Tasas de reutilización -->
+                <div class="col-lg-3 col-6">
+                    <div class="small-box text-bg-secondary">
+                        <div class="inner">
+                            <h3>{{ tasas_reutilizacion }}</h3>
+                            <p>Tasas de reutilización</p>
+                        </div>
+                        <a href="{% url 'reutilizacion' %}"
+                           class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
+                            Ver más <i class="bi bi-link-45deg"></i></a>
+                    </div>
+                </div>
+
+                <!-- Vehículos activos -->
+                <div class="col-lg-3 col-6">
+                    <div class="small-box text-bg-success">
+                        <div class="inner">
+                            <h3>{{ vehiculos_activos }}</h3>
+                            <p>Vehículos activos</p>
+                        </div>
+                        <a href="{% url 'vehicles' %}"
+                           class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
+                            Ver más <i class="bi bi-link-45deg"></i></a>
+                    </div>
+                </div>
+
+                <!-- Rutas disponibles -->
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

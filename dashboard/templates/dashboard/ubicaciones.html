@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Ubicaciones
+{% endblock %}
+
+{% block content %}
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h3 class="mb-0">Ubicaciones</h3>
+                </div>
+                <div class="col-sm-6 text-end">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ubicacionModal">Agregar
+                        Ubicación
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-content mt-3">
+        <div class="container-fluid">
+            <table id="ubicacionesTable" class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Municipio</th>
+                    <th>Latitud</th>
+                    <th>Longitud</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for ubicacion in ubicaciones %}
+                    <tr>
+                        <td>{{ ubicacion.nombre }}</td>
+                        <td>{{ ubicacion.descripcion }}</td>
+                        <td>{{ ubicacion.municipio }}</td>
+                        <td>{{ ubicacion.lat }}</td>
+                        <td>{{ ubicacion.lng }}</td>
+                        <td class="text-end">
+                            <button class="btn btn-warning btn-sm me-2 edit-btn" data-id="{{ ubicacion.id }}"
+                                    data-nombre="{{ ubicacion.nombre }}" data-descripcion="{{ ubicacion.descripcion }}"
+                                    data-municipio="{{ ubicacion.municipio }}" data-lat="{{ ubicacion.lat }}"
+                                    data-lng="{{ ubicacion.lng }}" data-bs-toggle="modal"
+                                    data-bs-target="#ubicacionModal">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <form action="{% url 'ubicacion_eliminar' ubicacion.id %}" method="POST"
+                                  style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm delete-btn">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="ubicacionModal" tabindex="-1" aria-labelledby="ubicacionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ubicacionModalLabel">Agregar Ubicación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="ubicacion_id" id="ubicacionIdInput">
+                    <div class="modal-body">
+                        {{ form.as_p }}
+                        <div id="map" style="height: 400px; margin-top: 20px;"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyByDqhU4h6Ed1slCfXlbbkRDvRXHnJpeSg&callback=initMap"
+            async defer></script>
+    <script>
+        new DataTable('#ubicacionesTable');
+        let map;
+        let marker;
+
+        function initMap() {
+            const initialPosition = {lat: -13.163055555556, lng: -74.224444444444};
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: initialPosition,
+                zoom: 14,
+            });
+
+            marker = new google.maps.Marker({
+                position: initialPosition,
+                map: map,
+                draggable: true,
+            });
+
+            google.maps.event.addListener(marker, 'dragend', function () {
+                const position = marker.getPosition();
+                document.getElementById('id_lat').value = position.lat();
+                document.getElementById('id_lng').value = position.lng();
+            });
+
+            map.addListener('click', function (e) {
+                marker.setPosition(e.latLng);
+                document.getElementById('id_lat').value = e.latLng.lat();
+                document.getElementById('id_lng').value = e.latLng.lng();
+            });
+        }
+
+        document.addEventListener('click', function (event) {
+            if (event.target.classList.contains('edit-btn')) {
+                const button = event.target;
+
+                document.getElementById('ubicacionIdInput').value = button.getAttribute('data-id');
+                document.getElementById('id_nombre').value = button.getAttribute('data-nombre');
+                document.getElementById('id_descripcion').value = button.getAttribute('data-descripcion');
+                document.getElementById('id_municipio').value = button.getAttribute('data-municipio');
+                document.getElementById('id_lat').value = button.getAttribute('data-lat');
+                document.getElementById('id_lng').value = button.getAttribute('data-lng');
+
+                const lat = parseFloat(button.getAttribute('data-lat'));
+                const lng = parseFloat(button.getAttribute('data-lng'));
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    marker.setPosition({lat: lat, lng: lng});
+                    map.setCenter({lat: lat, lng: lng});
+                }
+
+                document.getElementById('ubicacionModalLabel').innerText = 'Editar Ubicación';
+            }
+
+            if (event.target.classList.contains('delete-btn')) {
+                const confirmed = confirm("¿Estás seguro de eliminar esta ubicación?");
+                if (!confirmed) {
+                    event.preventDefault();
+                }
+            }
+        });
+
+        document.getElementById('ubicacionModal').addEventListener('hidden.bs.modal', function () {
+            document.getElementById('ubicacionModalLabel').innerText = 'Agregar Ubicación';
+            document.getElementById('ubicacionIdInput').value = '';
+            document.getElementById('id_nombre').value = '';
+            document.getElementById('id_descripcion').value = '';
+            document.getElementById('id_municipio').value = '';
+            document.getElementById('id_lat').value = '';
+            document.getElementById('id_lng').value = '';
+
+            const initialPosition = {lat: -13.163055555556, lng: -74.224444444444};
+            marker.setPosition(initialPosition);
+            map.setCenter(initialPosition);
+        });
+
+    </script>
+{% endblock %}

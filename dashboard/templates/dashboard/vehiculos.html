@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Dashboard
+{% endblock %}
+
+
+{% block content %}
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h3 class="mb-0">Vehículos</h3>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-end">
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#vehicleModal">Agregar
+                            vehículo
+                        </button>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-content mt-3">
+        <div class="container-fluid">
+            <table id="vehiculosTable" class="table table-fit table-striped" style="width:100%">
+                <thead>
+                <tr>
+                    <th>Placa</th>
+                    <th>Tipo</th>
+                    <th>Capacidad</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for vehiculo in vehiculos %}
+                    <tr>
+                        <td>{{ vehiculo.placa }}</td>
+                        <td>{{ vehiculo.tipo }}</td>
+                        <td>{{ vehiculo.capacidad }} KG</td>
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end">
+                                <button class="btn btn-warning btn-sm me-2 edit-btn" data-id="{{ vehiculo.id }}"
+                                        data-placa="{{ vehiculo.placa }}" data-tipo="{{ vehiculo.tipo }}"
+                                        data-capacidad="{{ vehiculo.capacidad }}"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#vehicleModal">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <form action="{% url 'vehiculo_eliminar' vehiculo.id %}" method="POST"
+                                      style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm delete-btn">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <div class="modal fade" id="vehicleModal" tabindex="-1" aria-labelledby="vehicleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="vehicleModalLabel">Agregar Vehículo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="vehiculo_id" id="vehiculoIdInput">
+                    <div class="modal-body">
+                        {{ form.as_p }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        #vehiculosTable th:last-child,
+        #vehiculosTable td:last-child {
+            width: 100px;
+        }
+    </style>
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        // Inicializar DataTable
+        new DataTable('#vehiculosTable');
+
+        document.addEventListener('click', function (event) {
+            if (event.target.classList.contains('edit-btn')) {
+                const button = event.target;
+
+                // Llenar datos en el modal
+                document.getElementById('vehiculoIdInput').value = button.getAttribute('data-id');
+                document.getElementById('id_placa').value = button.getAttribute('data-placa');
+                document.getElementById('id_tipo').value = button.getAttribute('data-tipo');
+                document.getElementById('id_capacidad').value = button.getAttribute('data-capacidad');
+
+                // Cambiar el título del modal
+                document.getElementById('vehicleModalLabel').innerText = 'Editar Vehículo';
+            }
+
+            if (event.target.classList.contains('delete-btn')) {
+                const confirmed = confirm("¿Estás seguro de eliminar este vehículo?");
+                if (!confirmed) {
+                    event.preventDefault();
+                }
+            }
+        });
+
+        // Resetear el modal para agregar un nuevo vehículo
+        document.getElementById('vehicleModal').addEventListener('hidden.bs.modal', function () {
+            document.getElementById('vehicleModalLabel').innerText = 'Agregar Vehículo';
+            document.getElementById('vehiculoIdInput').value = '';
+            document.getElementById('id_placa').value = '';
+            document.getElementById('id_tipo').value = '';
+            document.getElementById('id_capacidad').value = '';
+        });
+    </script>
+{% endblock %}

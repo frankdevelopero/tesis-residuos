@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Recolecciones
+{% endblock %}
+
+{% block content %}
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h3 class="mb-0">Recolecciones</h3>
+                </div>
+                <div class="col-sm-6 text-end">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#recoleccionModal">Agregar
+                        Recolección
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-content mt-3">
+        <div class="container-fluid">
+            <table id="recoleccionTable" class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Cantidad Recolectada</th>
+                    <th>Ruta</th>
+                    <th>Vehículo</th>
+                    <th>Registrado Por</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for recoleccion in recoleccion_list %}
+                    <tr>
+                        <td>{{ recoleccion.fecha }}</td>
+                        <td>{{ recoleccion.cantidad_recolectada }}</td>
+                        <td>{{ recoleccion.ruta.nombre|default:"Sin ruta" }}</td>
+                        <td>{{ recoleccion.vehiculo.placa|default:"Sin vehículo" }}</td>
+                        <td>{{ recoleccion.registrado_por }}</td>
+                        <td class="text-end">
+                            <button class="btn btn-warning btn-sm me-2 edit-btn"
+                                    data-id="{{ recoleccion.id }}"
+                                    data-fecha="{{ recoleccion.fecha }}"
+                                    data-cantidad-recolectada="{{ recoleccion.cantidad_recolectada }}"
+                                    data-ruta="{{ recoleccion.ruta.id|default:'' }}"
+                                    data-vehiculo="{{ recoleccion.vehiculo.id|default:'' }}"
+                                    data-registrado-por="{{ recoleccion.registrado_por.id|default:'' }}">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <form action="{% url 'recoleccion_eliminar' recoleccion.id %}" method="POST"
+                                  style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm delete-btn">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="recoleccionModal" tabindex="-1" aria-labelledby="recoleccionModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="recoleccionModalLabel">Agregar Recolección</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="recoleccion_id" id="recoleccionIdInput">
+                    <div class="modal-body">
+                        {{ form.as_p }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        // Inicializar DataTable
+        new DataTable('#recoleccionTable');
+
+        // Manejar eventos de clic para editar y eliminar
+        document.addEventListener('click', function (event) {
+            const button = event.target.closest('.edit-btn');
+            if (button) {
+                document.getElementById('recoleccionIdInput').value = button.getAttribute('data-id');
+                document.getElementById('id_fecha').value = button.getAttribute('data-fecha');
+                document.getElementById('id_cantidad_recolectada').value = button.getAttribute('data-cantidad-recolectada');
+                document.getElementById('id_ruta').value = button.getAttribute('data-ruta');
+                document.getElementById('id_vehiculo').value = button.getAttribute('data-vehiculo');
+                document.getElementById('id_registrado_por').value = button.getAttribute('data-registrado-por');
+                document.getElementById('recoleccionModalLabel').innerText = 'Editar Recolección';
+                const modal = new bootstrap.Modal(document.getElementById('recoleccionModal'));
+                modal.show();
+            }
+
+            const deleteButton = event.target.closest('.delete-btn');
+            if (deleteButton) {
+                console.log("Botón de eliminación detectado");
+
+                const confirmed = confirm("¿Estás seguro de eliminar este registro?");
+                if (!confirmed) {
+                    event.preventDefault();
+                }
+            }
+
+        });
+
+        document.getElementById('recoleccionModal').addEventListener('hidden.bs.modal', function () {
+            resetModal();
+        });
+
+        function resetModal() {
+            document.getElementById('recoleccionModalLabel').innerText = 'Agregar Recolección';
+            document.getElementById('recoleccionIdInput').value = '';
+            document.getElementById('id_fecha').value = '';
+            document.getElementById('id_cantidad_recolectada').value = '';
+            document.getElementById('id_ruta').value = '';
+            document.getElementById('id_vehiculo').value = '';
+            document.getElementById('id_registrado_por').value = '';
+        }
+    </script>
+{% endblock %}

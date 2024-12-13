@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Reutilización
+{% endblock %}
+
+{% block content %}
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h3 class="mb-0">Tasas de Reutilización</h3>
+                </div>
+                <div class="col-sm-6 text-end">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reutilizacionModal">Agregar
+                        Reutilización
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-content mt-3">
+        <div class="container-fluid">
+            <table id="reutilizacionTable" class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Cantidad Reutilizada</th>
+                    <th>Cantidad Generada</th>
+                    <th>Tasa de Reutilización</th>
+                    <th>Ubicación</th>
+                    <th>Registrado Por</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for reutilizacion in reutilizacion_list %}
+                    <tr>
+                        <td>{{ reutilizacion.fecha }}</td>
+                        <td>{{ reutilizacion.cantidad_reutilizada }}</td>
+                        <td>{{ reutilizacion.cantidad_generada }}</td>
+                        <td>{{ reutilizacion.tasa_reutilizacion|floatformat:2 }}</td>
+                        <td>{{ reutilizacion.ubicacion.nombre|default:"Sin ubicación" }}</td>
+                        <td>{{ reutilizacion.registrado_por }}</td>
+                        <td class="text-end">
+                            <button class="btn btn-warning btn-sm me-2 edit-btn"
+                                    data-id="{{ reutilizacion.id }}"
+                                    data-fecha="{{ reutilizacion.fecha }}"
+                                    data-cantidad-reutilizada="{{ reutilizacion.cantidad_reutilizada }}"
+                                    data-cantidad-generada="{{ reutilizacion.cantidad_generada }}"
+                                    data-ubicacion="{{ reutilizacion.ubicacion.id|default:'' }}"
+                                    data-registrado-por="{{ reutilizacion.registrado_por.id|default:'' }}">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <form action="{% url 'reutilizacion_eliminar' reutilizacion.id %}" method="POST"
+                                  style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm delete-btn">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="reutilizacionModal" tabindex="-1" aria-labelledby="reutilizacionModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reutilizacionModalLabel">Agregar Reutilización</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="reutilizacion_id" id="reutilizacionIdInput">
+                    <div class="modal-body">
+                        {{ form.as_p }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        // Inicializar DataTable
+        new DataTable('#reutilizacionTable');
+
+        // Manejar eventos de clic para editar y eliminar
+        document.addEventListener('click', function (event) {
+            const button = event.target.closest('.edit-btn');
+            if (button) {
+                document.getElementById('reutilizacionIdInput').value = button.getAttribute('data-id');
+                document.getElementById('id_fecha').value = button.getAttribute('data-fecha');
+                document.getElementById('id_cantidad_reutilizada').value = button.getAttribute('data-cantidad-reutilizada');
+                document.getElementById('id_cantidad_generada').value = button.getAttribute('data-cantidad-generada');
+                document.getElementById('id_ubicacion').value = button.getAttribute('data-ubicacion');
+                document.getElementById('id_registrado_por').value = button.getAttribute('data-registrado-por');
+                document.getElementById('reutilizacionModalLabel').innerText = 'Editar Reutilización';
+                const modal = new bootstrap.Modal(document.getElementById('reutilizacionModal'));
+                modal.show();
+            }
+
+            const deleteButton = event.target.closest('.delete-btn');
+            if (deleteButton) {
+                const confirmed = confirm("¿Estás seguro de eliminar este registro?");
+                if (!confirmed) {
+                    event.preventDefault();
+                }
+            }
+        });
+
+        document.getElementById('reutilizacionModal').addEventListener('hidden.bs.modal', function () {
+            resetModal();
+        });
+
+        function resetModal() {
+            document.getElementById('reutilizacionModalLabel').innerText = 'Agregar Reutilización';
+            document.getElementById('reutilizacionIdInput').value = '';
+            document.getElementById('id_fecha').value = '';
+            document.getElementById('id_cantidad_reutilizada').value = '';
+            document.getElementById('id_cantidad_generada').value = '';
+            document.getElementById('id_ubicacion').value = '';
+            document.getElementById('id_registrado_por').value = '';
+        }
+    </script>
+{% endblock %}

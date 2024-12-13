@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Incidencias
+{% endblock %}
+
+{% block content %}
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h3 class="mb-0">Incidencias</h3>
+                </div>
+                <div class="col-sm-6 text-end">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#incidenciaModal">Agregar
+                        Incidencia
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-content mt-3">
+        <div class="container-fluid">
+            <table id="incidenciaTable" class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Descripción</th>
+                    <th>Ubicación</th>
+                    <th>Responsable</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for incidencia in incidencia_list %}
+                    <tr>
+                        <td>{{ incidencia.fecha }}</td>
+                        <td>{{ incidencia.descripcion }}</td>
+                        <td>{{ incidencia.ubicacion.nombre|default:"Sin ubicación" }}</td>
+                        <td>{{ incidencia.responsable }}</td>
+                        <td class="text-end">
+                            <button class="btn btn-warning btn-sm me-2 edit-btn"
+                                    data-id="{{ incidencia.id }}"
+                                    data-fecha="{{ incidencia.fecha }}"
+                                    data-descripcion="{{ incidencia.descripcion }}"
+                                    data-ubicacion="{{ incidencia.ubicacion.id|default:'' }}"
+                                    data-responsable="{{ incidencia.responsable.id|default:'' }}">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <form action="{% url 'incidencia_eliminar' incidencia.id %}" method="POST"
+                                  style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm delete-btn">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="incidenciaModal" tabindex="-1" aria-labelledby="incidenciaModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="incidenciaModalLabel">Agregar Incidencia</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="incidencia_id" id="incidenciaIdInput">
+                    <div class="modal-body">
+                        {{ form.as_p }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        // Inicializar DataTable
+        new DataTable('#incidenciaTable');
+
+        // Manejar eventos de clic para editar y eliminar
+        document.addEventListener('click', function (event) {
+            const button = event.target.closest('.edit-btn');
+            if (button) {
+                document.getElementById('incidenciaIdInput').value = button.getAttribute('data-id');
+                document.getElementById('id_fecha').value = button.getAttribute('data-fecha');
+                document.getElementById('id_descripcion').value = button.getAttribute('data-descripcion');
+                document.getElementById('id_ubicacion').value = button.getAttribute('data-ubicacion');
+                document.getElementById('id_responsable').value = button.getAttribute('data-responsable');
+                document.getElementById('incidenciaModalLabel').innerText = 'Editar Incidencia';
+                const modal = new bootstrap.Modal(document.getElementById('incidenciaModal'));
+                modal.show();
+            }
+
+            const deleteButton = event.target.closest('.delete-btn');
+            if (deleteButton) {
+                const confirmed = confirm("¿Estás seguro de eliminar este registro?");
+                if (!confirmed) {
+                    event.preventDefault();
+                }
+            }
+        });
+
+        document.getElementById('incidenciaModal').addEventListener('hidden.bs.modal', function () {
+            resetModal();
+        });
+
+        function resetModal() {
+            document.getElementById('incidenciaModalLabel').innerText = 'Agregar Incidencia';
+            document.getElementById('incidenciaIdInput').value = '';
+            document.getElementById('id_fecha').value = '';
+            document.getElementById('id_descripcion').value = '';
+            document.getElementById('id_ubicacion').value = '';
+            document.getElementById('id_responsable').value = '';
+        }
+    </script>
+{% endblock %}

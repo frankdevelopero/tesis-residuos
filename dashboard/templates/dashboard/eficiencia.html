@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Eficiencia
+{% endblock %}
+
+{% block content %}
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h3 class="mb-0">Niveles de Eficiencia</h3>
+                </div>
+                <div class="col-sm-6 text-end">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#eficienciaModal">Agregar
+                        Eficiencia
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-content mt-3">
+        <div class="container-fluid">
+            <table id="eficienciaTable" class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Cantidad Gestionada</th>
+                    <th>Cantidad Generada</th>
+                    <th>Ubicación</th>
+                    <th>Registrado Por</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for eficiencia in eficiencia_list %}
+                    <tr>
+                        <td>{{ eficiencia.fecha }}</td>
+                        <td>{{ eficiencia.cantidad_gestionada }}</td>
+                        <td>{{ eficiencia.cantidad_generada }}</td>
+                        <td>{{ eficiencia.ubicacion }}</td>
+                        <td>{{ eficiencia.registrado_por }}</td>
+                        <td class="text-end">
+                            <button class="btn btn-warning btn-sm me-2 edit-btn"
+                                    data-id="{{ eficiencia.id }}"
+                                    data-fecha="{{ eficiencia.fecha }}"
+                                    data-cantidad-gestionada="{{ eficiencia.cantidad_gestionada }}"
+                                    data-cantidad-generada="{{ eficiencia.cantidad_generada }}"
+                                    data-ubicacion="{{ eficiencia.ubicacion.id|default:'' }}"
+                                    data-registrado-por="{{ eficiencia.registrado_por.id|default:'' }}">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <form action="{% url 'eficiencia_eliminar' eficiencia.id %}" method="POST"
+                                  style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm delete-btn">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="eficienciaModal" tabindex="-1" aria-labelledby="eficienciaModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="eficienciaModalLabel">Agregar Eficiencia</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="eficiencia_id" id="eficienciaIdInput">
+                    <div class="modal-body">
+                        {{ form.as_p }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        // Inicializar DataTable
+        new DataTable('#eficienciaTable');
+
+        // Manejar eventos de clic para editar y eliminar
+        document.addEventListener('click', function (event) {
+            const button = event.target.closest('.edit-btn');
+            if (button) {
+                document.getElementById('eficienciaIdInput').value = button.getAttribute('data-id');
+                document.getElementById('id_fecha').value = button.getAttribute('data-fecha');
+                document.getElementById('id_cantidad_gestionada').value = button.getAttribute('data-cantidad-gestionada');
+                document.getElementById('id_cantidad_generada').value = button.getAttribute('data-cantidad-generada');
+                document.getElementById('id_ubicacion').value = button.getAttribute('data-ubicacion');
+                document.getElementById('id_registrado_por').value = button.getAttribute('data-registrado-por');
+                document.getElementById('eficienciaModalLabel').innerText = 'Editar Eficiencia';
+                const modal = new bootstrap.Modal(document.getElementById('eficienciaModal'));
+                modal.show();
+            }
+
+            const deleteButton = event.target.closest('.delete-btn');
+            if (deleteButton) {
+                console.log("Botón de eliminación detectado");
+
+                const confirmed = confirm("¿Estás seguro de eliminar este registro?");
+                if (!confirmed) {
+                    event.preventDefault();
+                }
+            }
+
+        });
+
+        document.getElementById('eficienciaModal').addEventListener('hidden.bs.modal', function () {
+            resetModal();
+        });
+
+        function resetModal() {
+            document.getElementById('eficienciaModalLabel').innerText = 'Agregar Eficiencia';
+            document.getElementById('eficienciaIdInput').value = '';
+            document.getElementById('id_fecha').value = '';
+            document.getElementById('id_cantidad_gestionada').value = '';
+            document.getElementById('id_cantidad_generada').value = '';
+            document.getElementById('id_ubicacion').value = '';
+            document.getElementById('id_registrado_por').value = '';
+        }
+    </script>
+{% endblock %}
